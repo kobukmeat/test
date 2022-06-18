@@ -5,68 +5,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css"  />
-
     <title>장준우</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <style>
-        a {
-            font-family: "Dancing Script", sans-serif;
-            font-size: xx-large;
-
-        }
-
-        ;
-    </style>
-    <style>
-        div {
-            font-size: xx-large;
-        }
-    </style>
-    <h1>포켓몬도감만들기</h1>
+    <h1>나만의 포켓몬도감만들기</h1>
     <p>피카츄,파이리, 꼬부기를 구별해서 이에 대한 설명을 보여줍시다. 오늘은 6.18입니다</p>
-    <a>made by junwoo</a>
-    <script>
-        function readURL(input) {
-            if (input.files && input.files[0]) {
-          
-              var reader = new FileReader();
-          
-              reader.onload = function(e) {
-                $('.image-upload-wrap').hide();
-          
-                $('.file-upload-image').attr('src', e.target.result);
-                $('.file-upload-content').show();
-          
-                $('.image-title').html(input.files[0].name);
-              };
-          
-              reader.readAsDataURL(input.files[0]);
-          
-            } else {
-              removeUpload();
-            }
-          }
-          
-          function removeUpload() {
-            $('.file-upload-input').replaceWith($('.file-upload-input').clone());
-            $('.file-upload-content').hide();
-            $('.image-upload-wrap').show();
-          }
-          $('.image-upload-wrap').bind('dragover', function () {
-                  $('.image-upload-wrap').addClass('image-dropping');
-              });
-              $('.image-upload-wrap').bind('dragleave', function () {
-                  $('.image-upload-wrap').removeClass('image-dropping');
-          });
-          
-    </script>
-
-
-    <button type="button" onclick="init()">스타트</button>
+    <button type="button" onclick="init()">Start</button>
+    <button type="button" onclick="predict()">predict</button>
     <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <div class="file-upload">
         <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Add
@@ -79,7 +27,7 @@
             </div>
         </div>
         <div class="file-upload-content">
-            <img class="file-upload-image" src="#" alt="your image" />
+            <img class="file-upload-image" id = "my_img" src="#" alt="your image" />
             <div class="image-title-wrap">
                 <button type="button" onclick="removeUpload()" class="remove-image">Remove <span
                         class="image-title">Uploaded Image</span></button>
@@ -95,9 +43,7 @@
         // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
         // the link to your model provided by Teachable Machine export panel
-        const URL = "https://teachablemachine.withgoogle.com/models/qi_CiYVrN/";
-        //  모델 업데이트시 이 링크를 바꿔주세요
-
+        const URL = "https://teachablemachine.withgoogle.com/models/zt9akGJHs/";
 
         let model, webcam, labelContainer, maxPredictions;
 
@@ -113,12 +59,7 @@
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
 
-            // Convenience function to setup a webcam
-            const flip = true; // whether to flip the webcam
-            webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-            await webcam.setup(); // request access to the webcam
-            await webcam.play();
-            window.requestAnimationFrame(loop);
+  
 
             // append elements to the DOM
             document.getElementById("webcam-container").appendChild(webcam.canvas);
@@ -128,32 +69,63 @@
             }
         }
 
-        async function loop() {
-            webcam.update(); // update the webcam frame
-            await predict();
-            window.requestAnimationFrame(loop);
-        }
-
+  
         // run the webcam image through the image model
         async function predict() {
-            // predict can take in an image, video or canvas html element
-            const prediction = await model.predict(webcam.canvas);
-            for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-                labelContainer.childNodes[i].innerHTML = classPrediction;
+           var image = document.getElementById("my-image")
+           // predict can take in an image, video or canvas html element
+           const prediction = await model.predict(image,false);
+           if(prediction[0].probability > 0.7){
+               labelContainer.childNodes[0].innerHTML = "이포켓몬은 피카츄입니다."
+               labelContainer.childNodes[1].innerHTML = "Pikachu [a] 는 Pokémon 미디어 프랜차이즈 에 있는 가상의 종 입니다 . Atsuko Nishida 와 Ken Sugimori 가 디자인 한 Pikachu 는 1996년 일본 비디오 게임 Pokémon Red and Green 에 처음 등장 했습니다 . 피카츄는 전기 능력 을 가진 노란색의 쥐와 같은 생물입니다 . 그것은 포켓몬 프랜차이즈의 주요 캐릭터이며 마스코트이자 Nintendo의 주요 마스코트입니다."
+           }
+            else if(prediction[1].probability > 0.7){
+            labelContainer.childNodes[0].innerHTML = "이포켓몬은 파이리입니다."
+            labelContainer.childNodes[1].innerHTML = "파이리 는 일본에서 Hitokage ( 히토 카게 )로 알려져 있으며 Nintendo 와 Game Freak 의 Pokémon 프랜차이즈 에 있는 포켓몬 종류 입니다 . Atsuko Nishida 가 제작한 [1] Charmander는 비디오 게임 Pokémon Red and Blue 에 처음 등장했습니다.후속 속편은 나중에 다양한 상품, 스핀오프 타이틀, 다양한 영화, 프랜차이즈의 애니메이션 및 인쇄 버전에 등장합니다. Charmander의 꼬리 끝은 불꽃으로 타오르며 불꽃의 크기는 신체 건강과 개인의 감정을 모두 반영합니다. 도마뱀 포켓몬으로 알려져 있습니다."
             }
+            else{
+                labelContainer.childNodes[0].innerHTML = "모르겠습니다."
+            }
+     //       for (let i = 0; i < maxPredictions; i++) {
+     //           const classPrediction =
+     //               prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+     //           labelContainer.childNodes[i].innerHTML = classPrediction;
+     //       }
         }
     </script>
+    <script>function readURL(input) {
+            if (input.files && input.files[0]) {
 
+                var reader = new FileReader();
 
+                reader.onload = function (e) {
+                    $('.image-upload-wrap').hide();
+
+                    $('.file-upload-image').attr('src', e.target.result);
+                    $('.file-upload-content').show();
+
+                    $('.image-title').html(input.files[0].name);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+
+            } else {
+                removeUpload();
+            }
+        }
+
+        function removeUpload() {
+            $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+            $('.file-upload-content').hide();
+            $('.image-upload-wrap').show();
+        }
+        $('.image-upload-wrap').bind('dragover', function () {
+            $('.image-upload-wrap').addClass('image-dropping');
+        });
+        $('.image-upload-wrap').bind('dragleave', function () {
+            $('.image-upload-wrap').removeClass('image-dropping');
+        });
+    </script>
 </body>
-
-
-
-
-
-
-
 
 </html>
